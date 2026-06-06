@@ -1,0 +1,29 @@
+name: Build Tweak
+on: [workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Theos
+        run: |
+          bash -c "$(curl -fsSL https://githubusercontent.com)"
+          echo "THEOS=$HOME/theos" >> $GITHUB_ENV
+
+      - name: Get iOS SDK
+        run: |
+          git clone https://github.com $HOME/theos/sdks
+
+      - name: Build Packages
+        run: |
+          export THEOS=$HOME/theos
+          make package FINALPACKAGE=1
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: OS-Experience-deb
+          path: packages/*.deb
